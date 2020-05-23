@@ -1,3 +1,4 @@
+
 class DoesNotExist(Exception):
     pass
 
@@ -27,10 +28,10 @@ class Student:
         query="select * from Student where {}='{}'".format(cls.k,cls.v)
         
         a=read_data(query)
-        
+        #print(a)
         if len(a)>1:
             raise MultipleObjectsReturned
-        if len(a)==0:
+        elif len(a)==0:
             raise DoesNotExist    
         elif len(a)==1:
             c= Student(a[0][1],a[0][2],a[0][3])
@@ -40,19 +41,20 @@ class Student:
         
     		
     def delete(self):
-    	sql_query='delete from student where student_id={}'.format(self.student_id)
+    	sql_query='delete from Student where student_id={}'.format(self.student_id)
     	write_data(sql_query)
-    
+
     def save(self):
         if self.student_id is None:
-            query="insert into student(name,age,score) values ('{}',{},{})".format(self.name,self.age,self.score)
+            query="insert into Student(name,age,score) values ('{}',{},{})".format(self.name,self.age,self.score)
             write_data(query)
-            q1='select student_id from student where name="{}" and age={} and score={}'.format(self.name,self.age,self.score)
-            a=read_data(q1)   
+            q1='select student_id from Student where name="{}" and age={} and score={}'.format(self.name,self.age,self.score)
+            a=read_data(q1)
             self.student_id=a[0][0]
-        else:    
-            sql_query="update student set name='{}',age={},score={} where student_id={}".format(self.name,self.age,self.score,self.v)
+        else:
+            sql_query="update Student set student_id={},name='{}',age={},score={} where student_id={}".format(self.student_id,self.name,self.age,self.score,self.v)
             write_data(sql_query) 
+
 
 
 def write_data(sql_query):
@@ -74,4 +76,4 @@ def read_data(sql_query):
     connection.close()
     return ans
 	
-
+        
