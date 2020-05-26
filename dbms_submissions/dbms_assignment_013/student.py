@@ -27,7 +27,7 @@ class Student:
         for x,y in s.items():
             cls.k=x
             cls.v=y
-            
+        
         if x not in ('name','age','score','student_id'):
             raise InvalidField
             
@@ -45,53 +45,108 @@ class Student:
             c.student_id=a[0][0]
             return c
             
-    @classmethod    
-    def filter(cls,**kwargs):
-        out=[]
-        for key,value in kwargs.items():
-
-            if(key=='age' or key =='score' or key=='student_id' or key=='name'):
-                q='SELECT * FROM Student WHERE {}=\'{}\''.format(key,value)
-                
-            elif(key=='age__lt' or key=='score__lt' or key=='student_id__lt'):
-                k=key.split("__")
-                q='SELECT * FROM Student WHERE {} < {}'.format(k[0],value)
-                
-            elif(key=='age__lte' or key=='score__lte' or key=='student_id__lte'):
-                k=key.split("__")
-                q='SELECT * FROM Student WHERE {} <= {}'.format(k[0],value)
-                
-            elif(key=='age__gt' or key=='score__gt' or key=='student_id__gt'):
-                k=key.split("__")
-                q='SELECT * FROM Student WHERE {} > {}'.format(k[0],value)
-                
-            elif(key=='age__gte' or key=='score__gte' or key=='student_id__gte'):
-                k=key.split("__")
-                q='SELECT * FROM Student WHERE {} >= {}'.format(k[0],value)
-                
-            elif(key=='age__neq' or key=='score__neq' or key=='student_id__neq' or key=='name__neq'):
-                k=key.split("__")
-                q='SELECT * FROM Student WHERE {} <> \'{}\''.format(k[0],value)
-                
-            elif(key=='age__in' or key=='score__in' or key=='student_id__in' or key=='name__in'):
-                value=tuple(value)
-                k=key.split("__")
-                q='SELECT * FROM Student WHERE {} in {}'.format(k[0],value)
             
-            elif(key=='name__contains'):
-                q='SELECT * FROM Student WHERE name like \'%{}\''.format(value)
-
-            else:
-                raise InvalidField
+    @classmethod
+    def filter(cls,**kid):
+        cls.li=[]
+        cls.operator={'lt':'<','lte':'<=','gt':'>','gte':'>=','neq':'!='}
+        
+        
+        #if(len(kid))>=1:
+        l=[]
+        for x,y in kid.items():
+            cls.a=x
+            cls.b=y
+                    
+            #field=cls.a
+            field=x.split('__')
+            if field[0] not in ('name','age','score','student_id'):
+                raise InvalidField 
             
-            results=read_data(q)
-            #print (out)
-            #print(results)
-            for i in results:
-                student_obj=Student(i[1],i[2],i[3])
-                student_obj.student_id=i[0]
-                out.append(student_obj)
-        return out
+            if(len(field))==1:
+                query=" {}='{}'".format(cls.a,cls.b)
+            elif field[1]=='contains':
+                query=" {} like '%{}%'".format(field[0],cls.b)
+            elif field[1]=='in':
+                query=" {} {} {}".format(field[0],field[1],tuple(cls.b))
+            else:    
+                query="{} {} '{}'".format(field[0],cls.operator[field[1]],cls.b)
+                
+            l.append(query)
+                    
+            x = " and ".join(l)
+            #print(l)
+            #print(x)
+            query= "select * from Student where "+x        
+            
+            
+            
+        #print(query)            
+        obj=read_data(query)
+        for i in range(len(obj)):
+            c=Student(obj[i][1],obj[i][2],obj[i][3])
+            c.student_id=obj[i][0]
+            cls.li.append(c)
+        return cls.li    
+            
+    # @classmethod    
+    # def filter(cls,**kwargs):
+    #     out=[]
+    #     for key,value in kwargs.items():
+    #         k=key.split("__")
+            
+    #         if (k[0] not in ('age','score','student_id','name')):
+    #             raise InvalidField        
+            
+    #         if len(k)==1: 
+    #             if(k[0] in ('age','score','student_id','name')):
+    #                 q=read_data('SELECT * FROM Student WHERE {}=\'{}\''.format(key,value))
+    #             #results=read_data(q)
+            
+    #         elif len(k)>1:        
+    #             if(k[1]=='lt'):
+    #                 q=read_data('SELECT * FROM Student WHERE {} < {}'.format(k[0],value))
+                
+    #             elif(k[1]=='lte'):
+    #                 q=read_data('SELECT * FROM Student WHERE {} <= {}'.format(k[0],value))
+                
+    #             elif(k[1]=='gt'):
+    #                 q=read_data('SELECT * FROM Student WHERE {} > {}'.format(k[0],value))
+                
+    #             elif(k[1]=='gte'):
+    #                 q=read_data('SELECT * FROM Student WHERE {} >= {}'.format(k[0],value))
+                
+    #             elif(k[1]=='neq'):
+    #                 q=read_data('SELECT * FROM Student WHERE {} <> \'{}\''.format(k[0],value))
+                
+    #             elif(k[1]=='in'):
+    #                 value=tuple(value)
+    #                 q=read_data('SELECT * FROM Student WHERE {} in {}'.format(k[0],value))
+            
+    #             elif(k[1]=='contains'):
+    #                 q=read_data('SELECT * FROM Student WHERE {} like \'%{}%\''.format(k[0],value))
+            
+    #             #results=read_data(q)
+    #         #print (out)
+    #         #print(q,sep='\n')
+    #         #print()
+            
+    #         #if len(q)==0:
+    #             #out=[]
+    #         #else:
+    #             #print()
+    #             #print(q)
+    #             #print()
+    #             #out=[]
+    #         for i in q:
+    #             student_obj=Student(i[1],i[2],i[3])
+    #             student_obj.student_id=i[0]
+    #             out.append(student_obj)
+    #             print(out)
+    #             print()
+                
+                
+    #     #return out
         
             
     		
@@ -131,3 +186,6 @@ def read_data(sql_query):
     connection.close()
     return ans
 	
+
+# selected_students = Student.filter(age__in=[25,34],score__lt=50)
+# print(selected_students)
