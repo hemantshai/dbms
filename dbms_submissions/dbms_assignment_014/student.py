@@ -22,31 +22,33 @@ class Student:
             self.age,
             self.score)    
         
-    @classmethod
-    def get(cls,**s):
-        for x,y in s.items():
-            cls.k=x
-            cls.v=y
+    # @classmethod
+    # def get(cls,**s):
+    #     for x,y in s.items():
+    #         cls.k=x
+    #         cls.v=y
         
-        if x not in ('name','age','score','student_id'):
-            raise InvalidField
+    #     if x not in ('name','age','score','student_id'):
+    #         raise InvalidField
             
         
-        query="select * from Student where {}='{}'".format(cls.k,cls.v)
+    #     query="select * from Student where {}='{}'".format(cls.k,cls.v)
         
-        a=read_data(query)
-        #print(a)
-        if len(a)>1:
-            raise MultipleObjectsReturned
-        elif len(a)==0:
-            raise DoesNotExist    
-        elif len(a)==1:
-            c= Student(a[0][1],a[0][2],a[0][3])
-            c.student_id=a[0][0]
-            return c
+    #     a=read_data(query)
+    #     #print(a)
+    #     if len(a)>1:
+    #         raise MultipleObjectsReturned
+    #     elif len(a)==0:
+    #         raise DoesNotExist    
+    #     elif len(a)==1:
+    #         c= Student(a[0][1],a[0][2],a[0][3])
+    #         c.student_id=a[0][0]
+    #         return c
     
     @classmethod
     def avg(cls, field, **kwargs):
+        cls.k='avg'
+        
         
         if field not in ('name','age','score','student_id'):
             raise InvalidField
@@ -54,15 +56,15 @@ class Student:
         if len(kwargs)>=1:
             k=Student.filter(**kwargs)
             #print(k)
-            q='select avg({}) from Student where {}'.format(field,k)
+            q='select {}({}) from Student where {}'.format(cls.k,field,k)
             #print(q)
         else:
-            q='select avg({}) from Student'.format(field)
+            q='select {}({}) from Student'.format(cls.k,field)
+            
+        print(q)    
         out=read_data(q)
         return out[0][0]
-    
-    
-        
+
     @classmethod
     def min(cls, field, **kwargs):
         
@@ -180,25 +182,25 @@ class Student:
         #     cls.li.append(c)
         # return cls.li    
 
-    def delete(self):
-    	sql_query='delete from Student where student_id={}'.format(self.student_id)
-    	write_data(sql_query)
+    # def delete(self):
+    # 	sql_query='delete from Student where student_id={}'.format(self.student_id)
+    # 	write_data(sql_query)
 
-    def save(self):
-        if self.student_id is None:
-            query="insert into Student(name,age,score) values ('{}',{},{})".format(self.name,self.age,self.score)
-            write_data(query)
-            q1='select student_id from Student where name="{}" and age={} and score={}'.format(self.name,self.age,self.score)
-            a=read_data(q1)
-            self.student_id=a[0][0]
-        else:
-            sql_query="update Student set student_id={},name='{}',age={},score={} where student_id={}".format(self.student_id,self.name,self.age,self.score,self.v)
-            write_data(sql_query) 
+    # def save(self):
+    #     if self.student_id is None:
+    #         query="insert into Student(name,age,score) values ('{}',{},{})".format(self.name,self.age,self.score)
+    #         write_data(query)
+    #         q1='select student_id from Student where name="{}" and age={} and score={}'.format(self.name,self.age,self.score)
+    #         a=read_data(q1)
+    #         self.student_id=a[0][0]
+    #     else:
+    #         sql_query="update Student set student_id={},name='{}',age={},score={} where student_id={}".format(self.student_id,self.name,self.age,self.score,self.v)
+    #         write_data(sql_query) 
 
 
 
 def write_data(sql_query):
-    import sqlite3
+    import sqlite3                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
     connection = sqlite3.connect("students.sqlite3")
     crsr = connection.cursor() 
     crsr.execute("PRAGMA foreign_keys=on;") 
@@ -212,10 +214,12 @@ def read_data(sql_query):
     connection = sqlite3.connect("students.sqlite3")
     crsr = connection.cursor() 
     crsr.execute(sql_query) 
-    ans= crsr.fetchall()  
+    ans= crsr.fetchall() 
     connection.close()
     return ans
 	
 
-#avg_age = Student.avg('age', age__gt=18, age__lt=21)
-#print(avg_age)
+# avg_age = Student.avg('age', age__gt=18, age__lt=21)
+# print(avg_age)
+
+https://ap-southeast-1.console.aws .amazon.com/cloud9/ide/5daabffa44814b6ea3fa7a2bdb34e811
