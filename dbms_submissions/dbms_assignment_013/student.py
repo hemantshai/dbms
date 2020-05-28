@@ -85,7 +85,7 @@ class Student:
         obj=read_data(query)
         for i in range(len(obj)):
             c=Student(obj[i][1],obj[i][2],obj[i][3])
-            c.student_id=obj[i][0]
+            c.student_id=obj[i][0] 
             cls.li.append(c)
         return cls.li    
             
